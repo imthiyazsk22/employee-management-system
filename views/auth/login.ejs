@@ -1,0 +1,132 @@
+<%- include("../partials/header") %>
+
+<div class="login-page">
+  <!-- ── Left panel ── -->
+  <div class="login-left d-none d-lg-flex col-lg-6">
+    <div style="position:relative;z-index:1;width:100%;max-width:460px;margin:0 auto;">
+      <div class="login-brand-badge">IM</div>
+      <div class="login-headline">IM Solutions</div>
+      <div class="login-tagline">Enterprise HR &amp; Payroll Management Platform</div>
+
+      <div class="login-feature">
+        <span class="login-feature-icon"><i class="bi bi-people-fill"></i></span>
+        Workforce Management
+      </div>
+      <div class="login-feature">
+        <span class="login-feature-icon"><i class="bi bi-graph-up-arrow"></i></span>
+        Payroll Analytics
+      </div>
+      <div class="login-feature">
+        <span class="login-feature-icon"><i class="bi bi-award-fill"></i></span>
+        Employee Performance Tracking
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Right panel ── -->
+  <div class="login-right col-12 col-lg-6">
+    <div class="login-card">
+      <div class="login-card-icon">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <h4 class="fw-bold mb-1" style="letter-spacing:-.02em;">Welcome back</h4>
+      <p class="text-muted mb-4" style="font-size:.88rem;">Sign in to IM Solutions dashboard</p>
+
+      <%- include("../partials/messages") %>
+
+      <form action="/login" method="POST" autocomplete="off">
+        <div class="mb-3">
+          <label class="form-label" for="usernameInput">Username</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-person text-muted"></i>
+            </span>
+            <input
+              id="usernameInput"
+              type="text"
+              name="username"
+              class="form-control border-start-0 ps-1"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="passwordInput">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-lock text-muted"></i>
+            </span>
+            <input
+              id="passwordInput"
+              type="password"
+              name="password"
+              class="form-control border-start-0 ps-1"
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              class="btn btn-outline-secondary border-start-0"
+              type="button"
+              id="togglePasswordBtn"
+              title="Show / Hide password"
+            >
+              <i class="bi bi-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="showPasswordCheck" />
+            <label class="form-check-label text-muted" style="font-size:.83rem;" for="showPasswordCheck">Show password</label>
+          </div>
+          <a
+            href="#forgotNote"
+            data-bs-toggle="collapse"
+            class="text-decoration-none fw-semibold"
+            style="font-size:.83rem;color:var(--secondary);"
+            role="button"
+            aria-expanded="false"
+          >Forgot Password?</a>
+        </div>
+
+        <div class="collapse mb-3" id="forgotNote">
+          <div class="alert alert-info d-flex align-items-center gap-2 border-0 rounded-3 py-2 mb-0">
+            <i class="bi bi-info-circle-fill"></i>
+            <small>Please contact the administrator to reset your password.</small>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100 py-2 fw-semibold" type="submit">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+        </button>
+      </form>
+
+      <p class="text-center text-muted mt-4 mb-0" style="font-size:.78rem;">
+        &copy; <%= new Date().getFullYear() %> IM Solutions
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const pwInput   = document.getElementById('passwordInput');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const toggleIcon= document.getElementById('togglePasswordIcon');
+    const showCheck = document.getElementById('showPasswordCheck');
+
+    const setType = (show) => {
+      pwInput.type = show ? 'text' : 'password';
+      toggleIcon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+      showCheck.checked = show;
+    };
+
+    toggleBtn.addEventListener('click', () => setType(pwInput.type === 'password'));
+    showCheck.addEventListener('change', () => setType(showCheck.checked));
+  })();
+</script>
+
+<%- include("../partials/footer") %>

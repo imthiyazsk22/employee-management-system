@@ -1,0 +1,22 @@
+<%- include("header") %>
+<%- include("navbar") %>
+
+<div class="page-wrapper d-flex justify-content-center align-items-center" style="min-height:70vh;">
+  <div class="text-center" style="max-width:480px;">
+    <div class="error-icon mx-auto">
+      <i class="bi bi-exclamation-circle-fill"></i>
+    </div>
+    <h3 class="fw-bold mb-2"><%= title %></h3>
+    <p class="text-muted mb-4"><%= message %></p>
+    <div class="d-flex gap-2 justify-content-center">
+      <a href="/dashboard" class="btn btn-primary px-4 rounded-pill fw-semibold">
+        <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+      </a>
+      <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 rounded-pill">
+        <i class="bi bi-arrow-left me-1"></i>Go Back
+      </a>
+    </div>
+  </div>
+</div>
+
+<%- include("footer") %>

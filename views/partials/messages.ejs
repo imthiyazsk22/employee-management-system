@@ -1,0 +1,14 @@
+<% if (successMessage) { %>
+  <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 border-0 rounded-3 shadow-sm" role="alert">
+    <i class="bi bi-check-circle-fill fs-5"></i>
+    <span><%= successMessage %></span>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+<% } %>
+<% if (errorMessage) { %>
+  <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 border-0 rounded-3 shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+    <span><%= errorMessage %></span>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+<% } %>

@@ -1,0 +1,261 @@
+<%- include("../partials/header") %>
+<%- include("../partials/navbar") %>
+
+<div class="page-wrapper">
+  <%- include("../partials/messages") %>
+
+  <!-- ── Page header ── -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1">IM Solutions Dashboard</h1>
+      <p class="page-subtitle mb-0">
+        <i class="bi bi-bar-chart-fill me-1 text-primary"></i>
+        Employee Salary &amp; Hike Management System
+      </p>
+    </div>
+    <a href="/employees/new" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold">
+      <i class="bi bi-person-plus-fill me-2"></i>Add Employee
+    </a>
+  </div>
+
+  <!-- ── Stat cards ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="card stat-card stat-card-blue h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="stat-icon-wrap stat-icon-blue">
+            <i class="bi bi-people-fill"></i>
+          </span>
+          <div class="flex-grow-1">
+            <div class="stat-label">Total Employees</div>
+            <div class="stat-value"><%= stats.totalEmployees %></div>
+            <div class="stat-footer">Current headcount</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card stat-card stat-card-teal h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="stat-icon-wrap stat-icon-teal">
+            <i class="bi bi-cash-coin"></i>
+          </span>
+          <div class="flex-grow-1">
+            <div class="stat-label">Total Salary Expense</div>
+            <div class="stat-value" style="font-size:1.35rem;">
+              &#8377;<%= stats.totalSalaryExpense.toLocaleString() %>
+            </div>
+            <div class="stat-footer">Monthly payroll</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card stat-card stat-card-violet h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="stat-icon-wrap stat-icon-violet">
+            <i class="bi bi-graph-up-arrow"></i>
+          </span>
+          <div class="flex-grow-1">
+            <div class="stat-label">Average Salary</div>
+            <div class="stat-value" style="font-size:1.35rem;">
+              &#8377;<%= stats.averageSalary.toLocaleString(undefined,{maximumFractionDigits:0}) %>
+            </div>
+            <div class="stat-footer">Per employee</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card stat-card stat-card-amber h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="stat-icon-wrap stat-icon-amber">
+            <i class="bi bi-award-fill"></i>
+          </span>
+          <div class="flex-grow-1">
+            <div class="stat-label">Active Hikes</div>
+            <div class="stat-value"><%= stats.employeesWithActiveHikes %></div>
+            <div class="stat-footer">Employees with recorded hikes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Charts ── -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="card h-100" style="border-radius:var(--radius-md);">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="fw-bold mb-0">Salary Distribution</h6>
+            <small class="text-muted">Employee-wise current salary</small>
+          </div>
+          <i class="bi bi-bar-chart-fill text-primary fs-5"></i>
+        </div>
+        <div class="card-body">
+          <div class="chart-box">
+            <canvas id="salaryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100" style="border-radius:var(--radius-md);">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="fw-bold mb-0">Department Breakdown</h6>
+            <small class="text-muted">Employee count per department</small>
+          </div>
+          <i class="bi bi-pie-chart-fill text-primary fs-5"></i>
+        </div>
+        <div class="card-body">
+          <div class="chart-box">
+            <canvas id="deptChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Recent salary changes ── -->
+  <div class="card" style="border-radius:var(--radius-md);">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Salary Changes</h6>
+      <a href="/employees" class="btn btn-sm btn-outline-primary rounded-pill px-3">View all</a>
+    </div>
+    <div class="table-responsive modern-table-wrap">
+      <table class="table table-hover align-middle mb-0 modern-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Previous</th>
+            <th>New Salary</th>
+            <th>Hike</th>
+            <th>Reason</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (recentSalaryChanges.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2 d-block mb-2 opacity-25"></i>
+                No salary changes recorded yet.
+              </td>
+            </tr>
+          <% } %>
+          <% recentSalaryChanges.forEach((item) => { %>
+            <tr>
+              <td>
+                <span class="fw-semibold"><%= item.employee?.fullName || "Deleted Employee" %></span>
+                <% if (item.employee?.employeeId) { %>
+                  <span class="text-muted d-block" style="font-size:.78rem;"><%= item.employee.employeeId %></span>
+                <% } %>
+              </td>
+              <td>&#8377;<%= item.previousSalary.toLocaleString() %></td>
+              <td class="fw-semibold">&#8377;<%= item.newSalary.toLocaleString() %></td>
+              <td><span class="hike-badge">+<%= item.hikePercentage %>%</span></td>
+              <td><%= item.reason %></td>
+              <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PALETTE = ['#1E3A8A','#2563EB','#10B981','#7C3AED','#F59E0B','#EF4444','#0D9488','#DB2777'];
+
+  const empData  = <%- JSON.stringify(employeeSalaryData  || []) %>;
+  const deptData = <%- JSON.stringify(departmentCounts    || []) %>;
+
+  /* ── Salary bar chart ── */
+  const salaryCtx = document.getElementById('salaryChart');
+  if (salaryCtx && empData.length) {
+    new Chart(salaryCtx, {
+      type: 'bar',
+      data: {
+        labels: empData.map(e => e.fullName),
+        datasets: [{
+          label: 'Salary (₹)',
+          data:  empData.map(e => e.currentSalary),
+          backgroundColor: empData.map((_, i) => PALETTE[i % PALETTE.length] + 'CC'),
+          borderColor:     empData.map((_, i) => PALETTE[i % PALETTE.length]),
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ' ₹' + Number(ctx.parsed.y).toLocaleString()
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { maxRotation: 40, font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#F1F5F9' },
+            ticks: {
+              font: { size: 11 },
+              callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0)+'K' : v)
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /* ── Department doughnut ── */
+  const deptCtx = document.getElementById('deptChart');
+  if (deptCtx && deptData.length) {
+    new Chart(deptCtx, {
+      type: 'doughnut',
+      data: {
+        labels: deptData.map(d => d._id || 'Unknown'),
+        datasets: [{
+          data: deptData.map(d => d.count),
+          backgroundColor: PALETTE.slice(0, deptData.length),
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 12, padding: 16, font: { size: 12 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' employees'
+            }
+          }
+        }
+      }
+    });
+  }
+})();
+</script>
+
+<%- include("../partials/footer") %>

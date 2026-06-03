@@ -4,114 +4,83 @@
 <div class="page-wrapper">
   <%- include("../partials/messages") %>
 
-  <!-- ── Header ── -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
       <h1 class="page-title mb-1">Employees</h1>
-      <p class="page-subtitle mb-0">
-        <i class="bi bi-people me-1 text-primary"></i>Manage and search all employee records
-      </p>
+      <p class="page-subtitle mb-0">Search and filter workforce records</p>
     </div>
-    <a href="/employees/new" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold">
-      <i class="bi bi-person-plus-fill me-2"></i>Add Employee
-    </a>
+    <a href="/employees/new" class="btn btn-pay-salary px-4"><i class="bi bi-person-plus-fill me-2"></i>Add Employee</a>
   </div>
 
-  <!-- ── Search ── -->
-  <form method="GET" action="/employees" class="card mb-4" style="border-radius:var(--radius-md);">
-    <div class="card-body py-3">
-      <div class="row g-2 align-items-end">
-        <div class="col-md-10">
-          <div class="input-group search-group">
-            <span class="input-group-text">
-              <i class="bi bi-search text-muted"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              name="search"
-              value="<%= search %>"
-              placeholder="Search by name, ID, email or department&hellip;"
-            />
-          </div>
-        </div>
-        <div class="col-md-2 d-grid">
-          <button class="btn btn-primary fw-semibold">Search</button>
-        </div>
+  <form method="GET" action="/employees" class="filter-card">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Search by name</label>
+        <input type="text" name="search" class="form-control" value="<%= filters.search %>" placeholder="Name, ID, email" />
       </div>
+      <div class="col-md-2">
+        <label class="form-label">Department</label>
+        <select name="department" class="form-select">
+          <option value="">All</option>
+          <% departments.forEach((d) => { %>
+            <option value="<%= d %>" <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Payment</label>
+        <select name="paymentStatus" class="form-select">
+          <option value="">All</option>
+          <option value="Pending" <%= filters.paymentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+          <option value="Paid" <%= filters.paymentStatus === 'Paid' ? 'selected' : '' %>>Paid</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Min salary</label>
+        <input type="number" name="salaryMin" class="form-control" value="<%= filters.salaryMin %>" min="0" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Max salary</label>
+        <input type="number" name="salaryMax" class="form-control" value="<%= filters.salaryMax %>" min="0" />
+      </div>
+      <div class="col-md-1 d-grid"><button class="btn btn-primary">Go</button></div>
     </div>
   </form>
 
-  <!-- ── Table ── -->
-  <div class="card" style="border-radius:var(--radius-md);">
+  <div class="card border-0" style="border-radius:var(--radius-md);">
     <div class="table-responsive modern-table-wrap">
       <table class="table table-hover align-middle mb-0 modern-table">
         <thead>
           <tr>
-            <th><i class="bi bi-hash me-1"></i>ID</th>
-            <th><i class="bi bi-person me-1"></i>Name</th>
-            <th><i class="bi bi-diagram-3 me-1"></i>Department</th>
-            <th><i class="bi bi-briefcase me-1"></i>Designation</th>
-            <th><i class="bi bi-currency-rupee me-1"></i>Salary</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>ID</th><th>Name</th><th>Dept</th><th>Salary</th><th>Payment</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <% if (employees.length === 0) { %>
-            <tr>
-              <td colspan="7" class="text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-2 d-block mb-2 opacity-25"></i>
-                No employees found.
-              </td>
-            </tr>
+            <tr><td colspan="7" class="text-center py-5 text-muted">No employees found.</td></tr>
           <% } %>
           <% employees.forEach((employee) => { %>
+            <% const ps = employee.paymentStatus || 'Pending'; %>
             <tr>
-              <td>
-                <span class="badge bg-light text-dark border fw-semibold" style="font-size:.78rem;">
-                  <%= employee.employeeId %>
-                </span>
-              </td>
-              <td class="fw-semibold"><%= employee.fullName %></td>
+              <td><span class="badge bg-light text-dark border"><%= employee.employeeId %></span></td>
+              <td class="fw-semibold"><a href="/employee/<%= employee._id %>" class="text-decoration-none"><%= employee.fullName %></a></td>
               <td><%= employee.department %></td>
-              <td class="text-muted"><%= employee.designation %></td>
-              <td class="fw-semibold">&#8377;<%= employee.currentSalary.toLocaleString() %></td>
-              <td>
-                <span class="status-badge
-                  <%= employee.status === 'Active'   ? 'status-active'   :
-                      employee.status === 'On Leave' ? 'status-leave'    :
-                                                       'status-inactive' %>">
-                  <% if (employee.status === 'Active')   { %><i class="bi bi-circle-fill me-1" style="font-size:.5rem;"></i><% } %>
-                  <%= employee.status %>
-                </span>
-              </td>
+              <td>&#8377;<%= employee.currentSalary.toLocaleString() %></td>
+              <td><span class="status-badge <%= ps === 'Paid' ? 'payment-status-paid' : 'payment-status-pending' %>"><%= ps %></span></td>
+              <td><span class="status-badge <%= employee.status === 'Active' ? 'status-active' : employee.status === 'On Leave' ? 'status-leave' : 'status-inactive' %>"><%= employee.status %></span></td>
               <td class="text-nowrap">
-                <a href="/employees/<%= employee._id %>" class="btn btn-sm btn-outline-primary me-1 rounded-pill px-2">
-                  <i class="bi bi-eye me-1"></i>View
-                </a>
-                <a href="/employees/<%= employee._id %>/edit" class="btn btn-sm btn-outline-secondary me-1 rounded-pill px-2">
-                  <i class="bi bi-pencil me-1"></i>Edit
-                </a>
-                <form action="/employees/<%= employee._id %>/delete" method="POST" class="d-inline"
-                  onsubmit="return confirm('Delete <%= employee.fullName %>? This cannot be undone.')">
-                  <button class="btn btn-sm btn-outline-danger rounded-pill px-2">
-                    <i class="bi bi-trash me-1"></i>Delete
-                  </button>
-                </form>
+                <% if (ps !== 'Paid') { %>
+                  <button type="button" class="btn btn-sm btn-pay-salary me-1" data-pay-salary-mock data-employee-id="<%= employee._id %>"><i class="bi bi-credit-card"></i> Pay</button>
+                <% } %>
+                <a href="/employee/<%= employee._id %>" class="btn btn-sm btn-outline-primary rounded-pill">View</a>
+                <a href="/employees/<%= employee._id %>/edit" class="btn btn-sm btn-outline-secondary rounded-pill">Edit</a>
               </td>
             </tr>
           <% }) %>
         </tbody>
       </table>
     </div>
-    <% if (employees.length > 0) { %>
-      <div class="card-footer bg-white text-muted" style="font-size:.8rem;">
-        Showing <%= employees.length %> employee<%= employees.length !== 1 ? 's' : '' %>
-        <% if (search) { %> for &ldquo;<strong><%= search %></strong>&rdquo;<% } %>
-      </div>
-    <% } %>
   </div>
 </div>
-
+<%- include("../partials/mock-pay-scripts") %>
 <%- include("../partials/footer") %>

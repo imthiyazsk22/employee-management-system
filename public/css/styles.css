@@ -4,6 +4,9 @@
   --primary-dark:   #162d6b;
   --primary-light:  #EFF4FF;
   --secondary:      #2563EB;
+  --orange:         #F97316;
+  --orange-dark:    #EA580C;
+  --orange-soft:    #FFF7ED;
   --success:        #10B981;
   --success-soft:   #D1FAE5;
   --warning:        #F59E0B;
@@ -34,10 +37,40 @@ body {
 
 /* ─── Navbar ─────────────────────────────────────────────────────── */
 .hrms-navbar {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-  box-shadow: 0 2px 20px rgba(30,58,138,.25);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 45%, var(--secondary) 100%);
+  box-shadow: 0 2px 20px rgba(30, 58, 138, .25);
   padding-top: .6rem;
   padding-bottom: .6rem;
+}
+
+.nav-user-badge {
+  background: rgba(255,255,255,.95);
+  color: var(--text-dark);
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .45rem .9rem;
+  border-radius: 999px;
+}
+
+.btn-logout {
+  background: #fff;
+  color: var(--primary) !important;
+  border: 2px solid #fff;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .45rem 1.1rem;
+  border-radius: 999px;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-logout:hover {
+  background: var(--primary-light);
+  color: var(--primary-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
 }
 
 .hrms-navbar .nav-link {
@@ -123,6 +156,57 @@ body {
 .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+}
+
+/* Clickable dashboard tiles */
+.dashboard-tile {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.dashboard-tile:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(37, 99, 235, .15);
+  color: inherit;
+}
+
+.dashboard-tile .tile-arrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .2s, transform .2s;
+  color: var(--secondary);
+}
+
+.dashboard-tile:hover .tile-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.insight-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-item {
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .88rem;
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.filter-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card .card-body {
@@ -246,6 +330,46 @@ body {
   font-weight: 700;
   padding: .2rem .6rem;
   border-radius: 99px;
+}
+
+/* ─── Payment (mock salary) ──────────────────────────────────────── */
+.btn-pay-salary {
+  background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: .5rem 1.1rem;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, .35);
+}
+
+.btn-pay-salary:hover:not(:disabled) {
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(249, 115, 22, .45);
+  filter: brightness(1.05);
+}
+
+.btn-pay-salary:disabled {
+  opacity: .75;
+  cursor: not-allowed;
+}
+
+.payment-status-paid {
+  background: var(--success-soft);
+  color: #065F46;
+}
+
+.payment-status-pending {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.payment-info-card {
+  background: var(--orange-soft);
+  border: 1px solid #FED7AA;
+  border-radius: var(--radius-md);
 }
 
 /* ─── Buttons ────────────────────────────────────────────────────── */

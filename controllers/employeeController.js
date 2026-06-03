@@ -1,29 +1,46 @@
 const Employee = require("../models/Employee");
 const SalaryHistory = require("../models/SalaryHistory");
+const Payment = require("../models/Payment");
 const mongoose = require("mongoose");
+const { DEPARTMENTS } = require("../utils/constants");
+const { logActivity } = require("../utils/activityLogger");
+const { buildProfileMetrics } = require("../utils/profileMetrics");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const listEmployees = async (req, res, next) => {
   try {
     const search = req.query.search ? req.query.search.trim() : "";
-    const query = search
-      ? {
-          $or: [
-            { fullName: { $regex: search, $options: "i" } },
-            { employeeId: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { department: { $regex: search, $options: "i" } }
-          ]
-        }
-      : {};
+    const department = req.query.department || "";
+    const paymentStatus = req.query.paymentStatus || "";
+    const salaryMin = req.query.salaryMin ? Number(req.query.salaryMin) : null;
+    const salaryMax = req.query.salaryMax ? Number(req.query.salaryMax) : null;
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: "i" } },
+        { employeeId: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ];
+    }
+    if (department) query.department = department;
+    if (paymentStatus) query.paymentStatus = paymentStatus;
+    if (salaryMin !== null && !Number.isNaN(salaryMin)) {
+      query.currentSalary = { ...query.currentSalary, $gte: salaryMin };
+    }
+    if (salaryMax !== null && !Number.isNaN(salaryMax)) {
+      query.currentSalary = { ...query.currentSalary, $lte: salaryMax };
+    }
 
     const employees = await Employee.find(query).sort({ createdAt: -1 });
 
     res.render("employees/index", {
       title: "Employees",
       employees,
-      search
+      departments: DEPARTMENTS,
+      filters: { search, department, paymentStatus, salaryMin: req.query.salaryMin || "", salaryMax: req.query.salaryMax || "" }
     });
   } catch (error) {
     next(error);
@@ -35,6 +52,7 @@ const addEmployeeForm = (req, res) => {
     title: "Add Employee",
     formTitle: "Add Employee",
     employee: {},
+    departments: DEPARTMENTS,
     action: "/employees"
   });
 };
@@ -71,7 +89,12 @@ const createEmployee = async (req, res, next) => {
       return res.redirect("/employees/new");
     }
 
-    await Employee.create({
+    if (!DEPARTMENTS.includes(department.trim())) {
+      req.session.errorMessage = "Department must be HR, IT, Finance, or Sales.";
+      return res.redirect("/employees/new");
+    }
+
+    const newEmployee = await Employee.create({
       employeeId: employeeId.trim(),
       fullName: fullName.trim(),
       email: email.trim(),
@@ -81,6 +104,8 @@ const createEmployee = async (req, res, next) => {
       currentSalary: salaryValue,
       status
     });
+
+    await logActivity("Employee Added", newEmployee._id, newEmployee.fullName);
 
     req.session.successMessage = "Employee created successfully.";
     return res.redirect("/employees");
@@ -110,6 +135,7 @@ const editEmployeeForm = async (req, res, next) => {
       title: "Edit Employee",
       formTitle: "Edit Employee",
       employee,
+      departments: DEPARTMENTS,
       action: `/employees/${employee._id}/update`
     });
   } catch (error) {
@@ -146,6 +172,11 @@ const updateEmployee = async (req, res, next) => {
       return res.redirect(`/employees/${req.params.id}/edit`);
     }
 
+    if (!DEPARTMENTS.includes(department.trim())) {
+      req.session.errorMessage = "Department must be HR, IT, Finance, or Sales.";
+      return res.redirect(`/employees/${req.params.id}/edit`);
+    }
+
     const updatedEmployee = await Employee.findByIdAndUpdate(
       req.params.id,
       {
@@ -164,6 +195,8 @@ const updateEmployee = async (req, res, next) => {
       req.session.errorMessage = "Employee not found.";
       return res.redirect("/employees");
     }
+
+    await logActivity("Employee Updated", updatedEmployee._id, updatedEmployee.fullName);
 
     req.session.successMessage = "Employee details updated.";
     return res.redirect("/employees");
@@ -190,6 +223,7 @@ const deleteEmployee = async (req, res, next) => {
     }
 
     await SalaryHistory.deleteMany({ employee: req.params.id });
+    await logActivity("Employee Deleted", null, deletedEmployee.fullName);
     req.session.successMessage = "Employee removed.";
     return res.redirect("/employees");
   } catch (error) {
@@ -217,7 +251,42 @@ const employeeDetails = async (req, res, next) => {
     res.render("employees/details", {
       title: "Employee Details",
       employee,
-      salaryHistory
+      salaryHistory,
+      paymentHistory: []
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const employeeProfile = async (req, res, next) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      req.session.errorMessage = "Invalid employee ID.";
+      return res.redirect("/employees");
+    }
+
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      req.session.errorMessage = "Employee not found.";
+      return res.redirect("/employees");
+    }
+
+    const salaryHistory = await SalaryHistory.find({ employee: employee._id })
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    const paymentHistory = await Payment.find({ employeeRef: employee._id })
+      .sort({ paidAt: -1 });
+
+    const profileMetrics = buildProfileMetrics(employee);
+
+    res.render("employees/profile", {
+      title: `${employee.fullName} — Profile`,
+      employee,
+      salaryHistory,
+      paymentHistory,
+      profileMetrics
     });
   } catch (error) {
     next(error);
@@ -260,6 +329,8 @@ const updateSalary = async (req, res, next) => {
       changedBy: req.session.admin.username
     });
 
+    await logActivity("Salary Updated", employee._id, `New salary: ₹${salaryValue.toLocaleString()}`);
+
     req.session.successMessage = "Salary updated successfully.";
     return res.redirect(`/employees/${employee._id}`);
   } catch (error) {
@@ -301,6 +372,8 @@ const applyHike = async (req, res, next) => {
       changedBy: req.session.admin.username
     });
 
+    await logActivity("Hike Applied", employee._id, `${hike}% hike applied`);
+
     req.session.successMessage = "Hike applied successfully.";
     return res.redirect(`/employees/${employee._id}`);
   } catch (error) {
@@ -316,6 +389,7 @@ module.exports = {
   updateEmployee,
   deleteEmployee,
   employeeDetails,
+  employeeProfile,
   updateSalary,
   applyHike
 };

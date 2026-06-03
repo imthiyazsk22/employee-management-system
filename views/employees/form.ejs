@@ -63,15 +63,12 @@
 
           <div class="col-md-3">
             <label class="form-label" for="department">Department</label>
-            <input
-              id="department"
-              type="text"
-              name="department"
-              class="form-control"
-              value="<%= employee.department || '' %>"
-              placeholder="e.g. Engineering"
-              required
-            />
+            <select id="department" name="department" class="form-select" required>
+              <option value="">Select department</option>
+              <% departments.forEach((d) => { %>
+                <option value="<%= d %>" <%= employee.department === d ? 'selected' : '' %>><%= d %></option>
+              <% }) %>
+            </select>
           </div>
 
           <div class="col-md-3">

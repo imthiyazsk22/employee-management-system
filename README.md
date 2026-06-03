@@ -105,6 +105,12 @@ npm run dev
 
 - [http://localhost:5000](http://localhost:5000)
 
+## Mock Salary Payment
+
+- **Pay Salary** on employee list, details, and profile pages (orange theme).
+- `POST /pay-salary/:id` — simulates payment: generates `TXN` + timestamp, sets `paymentStatus`, `paymentDate`, `transactionId`, and creates a `Payment` record.
+- `GET /payment-history` — full payment ledger with filters (employee, department, status).
+
 ## Route Map
 
 ### Auth Routes
@@ -113,21 +119,31 @@ npm run dev
 - `POST /login` - Login admin
 - `GET /logout` - Logout admin
 
-### Dashboard Route
+### Dashboard & Analytics (protected)
 
-- `GET /dashboard` - Dashboard (protected)
+- `GET /dashboard` - Main dashboard with drill-down tiles, charts, activity feed
+- `GET /salary-expenses` - Payroll breakdown
+- `GET /salary-analysis` - Salary analytics
+- `GET /hike-details` - Hike records
+- `GET /departments` - Department headcount and salary totals
 
-### Employee Routes (all protected)
+### Payment Routes (protected)
 
-- `GET /employees` - Employee list + search
+- `POST /pay-salary/:id` - Mock salary payment (JSON)
+- `GET /payment-history` - Payment history table + filters
+
+### Employee Routes (protected)
+
+- `GET /employees` - List with search and filters (department, payment status, salary range)
 - `GET /employees/new` - Add employee form
 - `POST /employees` - Create employee
-- `GET /employees/:id` - Employee details + salary history
+- `GET /employees/:id` - Employee details + salary history + pay salary
 - `GET /employees/:id/edit` - Edit employee form
 - `POST /employees/:id/update` - Update employee
 - `POST /employees/:id/delete` - Delete employee
 - `POST /employees/:id/salary` - Update salary
 - `POST /employees/:id/hike` - Apply hike
+- `GET /employee/:id` - SaaS-style employee profile + payment history
 
 ## Validation and Error Handling
 

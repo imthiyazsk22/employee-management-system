@@ -5,37 +5,23 @@
       <span class="fs-6">IM Solutions</span>
     </a>
 
-    <button
-      class="navbar-toggler border-0"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#mainNav"
-      aria-controls="mainNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="mainNav">
       <% if (currentUser) { %>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
-          <li class="nav-item">
-            <a class="nav-link" href="/dashboard">
-              <i class="bi bi-speedometer2 me-1"></i>Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/employees">
-              <i class="bi bi-people me-1"></i>Employees
-            </a>
-          </li>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+          <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/employees"><i class="bi bi-people me-1"></i>Employees</a></li>
+          <li class="nav-item"><a class="nav-link" href="/departments"><i class="bi bi-diagram-3 me-1"></i>Departments</a></li>
+          <li class="nav-item"><a class="nav-link" href="/payment-history"><i class="bi bi-receipt me-1"></i>Payments</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2 hrms-user-menu">
-          <span class="badge rounded-pill bg-white bg-opacity-20 text-white px-3 py-2 fw-semibold">
+        <div class="d-flex align-items-center gap-2 hrms-user-menu flex-wrap">
+          <span class="nav-user-badge">
             <i class="bi bi-person-circle me-1"></i><%= currentUser.username %>
           </span>
-          <a class="btn btn-sm btn-outline-light px-3 rounded-pill" href="/logout">
+          <a class="btn btn-logout" href="/logout">
             <i class="bi bi-box-arrow-right me-1"></i>Logout
           </a>
         </div>

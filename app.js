@@ -1,16 +1,18 @@
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
-const dotenv = require("dotenv");
+const loadEnv = require("./config/loadEnv");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const employeeProfileRoutes = require("./routes/employeeProfileRoutes");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 
-dotenv.config();
+loadEnv();
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use((req, res, next) => {
 
 app.use("/", authRoutes);
 app.use("/", dashboardRoutes);
+app.use("/", paymentRoutes);
+app.use("/employee", employeeProfileRoutes);
 app.use("/employees", employeeRoutes);
 
 app.use(notFound);
@@ -52,11 +56,24 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+    const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log(`\nServer running — open in browser:`);
+      console.log(`  http://localhost:${PORT}`);
+      console.log(`  http://127.0.0.1:${PORT}\n`);
+    });
+
+    server.on("error", (error) => {
+      if (error.code === "EADDRINUSE") {
+        console.error(
+          `\nPort ${PORT} is already in use. Stop the other app or set PORT=5001 in .env\n`
+        );
+      } else {
+        console.error("\nServer failed to start:", error.message);
+      }
+      process.exit(1);
     });
   } catch (error) {
-    console.error("Application startup failed:", error.message);
+    console.error("Application startup failed.");
     process.exit(1);
   }
 };

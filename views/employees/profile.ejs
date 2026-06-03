@@ -1,0 +1,338 @@
+<%- include("../partials/header") %>
+
+<%- include("../partials/navbar") %>
+
+<div class="page-wrapper employee-profile-page">
+
+  <%- include("../partials/messages") %>
+
+  <% const payStatus = employee.paymentStatus || 'Pending'; %>
+  <% const metrics = profileMetrics || { attendance: { present: 0, absent: 0, total: 0, percentage: 0 }, tasks: { completed: 0, pending: 0, total: 0, completionRate: 0 }, performanceRating: 1 }; %>
+  <% const att = metrics.attendance; %>
+  <% const tsk = metrics.tasks; %>
+  <% const rating = metrics.performanceRating; %>
+
+
+
+  <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+
+    <a href="/employees" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Employees</a>
+
+    <div class="flex-grow-1">
+
+      <h1 class="page-title mb-0"><%= employee.fullName %></h1>
+
+      <span class="page-subtitle"><%= employee.designation %> &bull; <%= employee.department %></span>
+
+    </div>
+
+    <div class="profile-rating-inline d-flex align-items-center gap-1" title="Performance rating">
+
+      <% for (let s = 1; s <= 5; s++) { %>
+
+        <i class="bi <%= s <= rating ? 'bi-star-fill' : 'bi-star' %> profile-star"></i>
+
+      <% } %>
+
+      <span class="profile-rating-label"><%= rating %>/5</span>
+
+    </div>
+
+    <% if (payStatus !== 'Paid') { %>
+
+      <button type="button" class="btn btn-pay-salary" data-pay-salary-mock data-employee-id="<%= employee._id %>">
+
+        <i class="bi bi-credit-card me-2"></i>Pay Salary
+
+      </button>
+
+    <% } %>
+
+    <a href="/employees/<%= employee._id %>/edit" class="btn btn-outline-primary rounded-pill">Edit</a>
+
+  </div>
+
+
+
+  <div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+
+      <div class="profile-stat-mini">
+
+        <span class="profile-stat-mini-label"><i class="bi bi-calendar-check me-1"></i>Attendance</span>
+
+        <span class="profile-stat-mini-value"><%= att.percentage %>%</span>
+
+        <span class="profile-stat-mini-sub"><%= att.present %> present · <%= att.absent %> absent · <%= att.total %> days</span>
+
+      </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+      <div class="profile-stat-mini">
+
+        <span class="profile-stat-mini-label"><i class="bi bi-list-check me-1"></i>Tasks</span>
+
+        <span class="profile-stat-mini-value"><%= tsk.completed %> done</span>
+
+        <span class="profile-stat-mini-sub"><%= tsk.pending %> pending · <%= tsk.total %> total</span>
+
+      </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+      <div class="profile-stat-mini">
+
+        <span class="profile-stat-mini-label"><i class="bi bi-graph-up me-1"></i>Performance</span>
+
+        <span class="profile-stat-mini-value"><%= rating %> <span class="text-muted fw-normal">/ 5</span></span>
+
+        <span class="profile-stat-mini-sub">Based on attendance &amp; tasks</span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="row g-4">
+
+    <div class="col-lg-8">
+
+      <div class="card border-0 mb-4" style="border-radius:var(--radius-md);">
+
+        <div class="card-header fw-bold py-3">Employee Details</div>
+
+        <div class="card-body">
+
+          <div class="row g-3">
+
+            <div class="col-md-6"><div class="profile-meta-card"><div class="profile-meta-label">Employee ID</div><div class="profile-meta-value"><%= employee.employeeId %></div></div></div>
+
+            <div class="col-md-6"><div class="profile-meta-card"><div class="profile-meta-label">Email</div><div class="profile-meta-value"><%= employee.email %></div></div></div>
+
+            <div class="col-md-6"><div class="profile-meta-card"><div class="profile-meta-label">Department</div><div class="profile-meta-value"><%= employee.department %></div></div></div>
+
+            <div class="col-md-6"><div class="profile-meta-card"><div class="profile-meta-label">Employment Status</div><div class="profile-meta-value"><%= employee.status %></div></div></div>
+
+            <div class="col-md-6"><div class="profile-meta-card"><div class="profile-meta-label">Joining Date</div><div class="profile-meta-value"><%= new Date(employee.joiningDate).toLocaleDateString('en-IN') %></div></div></div>
+
+            <div class="col-md-6"><div class="profile-meta-card" style="background:var(--primary-light);"><div class="profile-meta-label">Current Salary</div><div class="profile-meta-value fs-5 text-primary">&#8377;<%= employee.currentSalary.toLocaleString() %></div></div></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card border-0" style="border-radius:var(--radius-md);">
+
+        <div class="card-header fw-bold py-3">Salary History</div>
+
+        <div class="table-responsive modern-table-wrap">
+
+          <table class="table modern-table mb-0">
+
+            <thead><tr><th>Date</th><th>Previous</th><th>New</th><th>Hike</th><th>Reason</th></tr></thead>
+
+            <tbody>
+
+              <% if (salaryHistory.length === 0) { %><tr><td colspan="5" class="text-center text-muted py-4">No history</td></tr><% } %>
+
+              <% salaryHistory.forEach((h) => { %>
+
+                <tr>
+
+                  <td><%= new Date(h.createdAt).toLocaleDateString() %></td>
+
+                  <td>&#8377;<%= h.previousSalary.toLocaleString() %></td>
+
+                  <td>&#8377;<%= h.newSalary.toLocaleString() %></td>
+
+                  <td><span class="hike-badge">+<%= h.hikePercentage %>%</span></td>
+
+                  <td><%= h.reason %></td>
+
+                </tr>
+
+              <% }) %>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="col-lg-4">
+
+      <div class="card border-0 mb-3 profile-side-card" style="border-radius:var(--radius-md);">
+
+        <div class="card-body py-3">
+
+          <h6 class="fw-semibold mb-2 small text-uppercase text-muted">Attendance</h6>
+
+          <div class="d-flex justify-content-between small mb-1"><span>Present</span><strong><%= att.present %></strong></div>
+
+          <div class="d-flex justify-content-between small mb-1"><span>Absent</span><strong><%= att.absent %></strong></div>
+
+          <div class="d-flex justify-content-between small mb-2"><span>Total days</span><strong><%= att.total %></strong></div>
+
+          <div class="profile-progress-wrap">
+
+            <div class="profile-progress-bar" style="width:<%= att.percentage %>%;"></div>
+
+          </div>
+
+          <div class="text-end small text-muted mt-1"><%= att.percentage %>%</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card border-0 mb-3 profile-side-card" style="border-radius:var(--radius-md);">
+
+        <div class="card-body py-3">
+
+          <h6 class="fw-semibold mb-2 small text-uppercase text-muted">Tasks</h6>
+
+          <div class="d-flex justify-content-between small mb-1"><span class="text-success">Completed</span><strong><%= tsk.completed %></strong></div>
+
+          <div class="d-flex justify-content-between small mb-2"><span class="text-warning">Pending</span><strong><%= tsk.pending %></strong></div>
+
+          <div class="profile-progress-wrap profile-progress-tasks">
+
+            <div class="profile-progress-bar" style="width:<%= tsk.completionRate %>%;"></div>
+
+          </div>
+
+          <div class="text-end small text-muted mt-1"><%= tsk.completionRate %>% completed</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card border-0 mb-3 payment-info-card">
+
+        <div class="card-body py-3">
+
+          <h6 class="fw-semibold mb-2">Payment Status</h6>
+
+          <span class="status-badge <%= payStatus === 'Paid' ? 'payment-status-paid' : 'payment-status-pending' %>" id="paymentStatusBadge">
+
+            <%= payStatus %>
+
+          </span>
+
+          <% if (employee.transactionId) { %>
+
+            <p class="mt-2 mb-1 small text-muted">Transaction ID</p>
+
+            <code class="small"><%= employee.transactionId %></code>
+
+          <% } %>
+
+          <% if (employee.paymentDate) { %>
+
+            <p class="mt-2 mb-0 small text-muted">Paid on <%= new Date(employee.paymentDate).toLocaleString('en-IN') %></p>
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card border-0" style="border-radius:var(--radius-md);">
+
+        <div class="card-header fw-semibold py-2 small">Payment History</div>
+
+        <ul class="list-group list-group-flush">
+
+          <% if (paymentHistory.length === 0) { %>
+
+            <li class="list-group-item text-muted small py-3">No payments yet.</li>
+
+          <% } %>
+
+          <% paymentHistory.forEach((p) => { %>
+
+            <li class="list-group-item py-2">
+
+              <div class="fw-semibold small">&#8377;<%= p.amount.toLocaleString() %></div>
+
+              <code class="small text-muted"><%= p.transactionId %></code>
+
+              <div class="text-muted small"><%= new Date(p.paidAt).toLocaleString('en-IN') %></div>
+
+            </li>
+
+          <% }) %>
+
+        </ul>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<style>
+
+  .employee-profile-page .profile-star { font-size: .72rem; color: #F59E0B; line-height: 1; }
+
+  .employee-profile-page .profile-rating-label { font-size: .75rem; color: var(--text-muted); margin-left: .25rem; }
+
+  .employee-profile-page .profile-stat-mini {
+
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+
+    padding: .85rem 1rem; height: 100%;
+
+  }
+
+  .employee-profile-page .profile-stat-mini-label { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 600; }
+
+  .employee-profile-page .profile-stat-mini-value { display: block; font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin: .15rem 0; }
+
+  .employee-profile-page .profile-stat-mini-sub { font-size: .78rem; color: var(--text-muted); }
+
+  .employee-profile-page .profile-progress-wrap { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+
+  .employee-profile-page .profile-progress-bar { height: 100%; background: var(--secondary); border-radius: 99px; }
+
+  .employee-profile-page .profile-progress-tasks .profile-progress-bar { background: var(--success); }
+
+  .employee-profile-page .profile-side-card .card-body { font-size: .88rem; }
+
+</style>
+
+
+
+<%- include("../partials/mock-pay-scripts") %>
+
+<%- include("../partials/footer") %>
+

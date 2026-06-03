@@ -40,10 +40,44 @@ const employeeSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid"],
+      default: "Pending"
+    },
+    paymentDate: {
+      type: Date,
+      default: null
+    },
+    transactionId: {
+      type: String,
+      default: null,
+      trim: true
+    },
     status: {
       type: String,
       enum: ["Active", "On Leave", "Inactive"],
       default: "Active"
+    },
+    presentDays: {
+      type: Number,
+      min: 0,
+      default: null
+    },
+    absentDays: {
+      type: Number,
+      min: 0,
+      default: null
+    },
+    tasksCompleted: {
+      type: Number,
+      min: 0,
+      default: null
+    },
+    tasksPending: {
+      type: Number,
+      min: 0,
+      default: null
     }
   },
   { timestamps: true }
